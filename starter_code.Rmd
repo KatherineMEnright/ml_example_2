@@ -126,5 +126,47 @@ metrics(x_2, truth = dvote, estimate = pred_dvote) %>%
 
 # Much better! Repo before class.
 
+# initial_split(), logistic_reg(), set_engine(), fit(), predict(), bind_cols(), metrics() and vfold_cv().
+
+logi_reg_glm <- logistic_reg() %>% 
+  set_engine("glm")
+
+logi_reg_fit <- fit(
+  logi_reg_glm,
+  formula = dvote ~ gender + party + state + office, 
+  data = clean)
+
+predictions <- logi_reg_fit %>%
+  predict(new_data = clean)
+
+test_pred <- bind_cols(predictions, clean)
+
+metrics(test_pred, truth = dvote, estimate = .pred_class) %>% 
+  gt() %>% 
+    tab_header("Model Evaluation on All Data")
+
+```
+```{r one_percent}
+
+split <- initial_split(clean, prop = 0.01)
+training_one_pct  <- training(split)
+testing_part <- testing(split)
+
+logi_reg_glm <- logistic_reg() %>% 
+  set_engine("glm")
+
+logi_reg_fit <- fit(
+  logi_reg_glm,
+  formula = dvote ~ gender + party + state + office, 
+  data = training_one_pct )
+
+predictions <- logi_reg_fit %>%
+  predict(new_data =  training_one_pct )
+
+test_pred <- bind_cols(predictions, training_one_pct)
+
+metrics(test_pred, truth = dvote, estimate = .pred_class) %>% 
+  gt() %>% 
+    tab_header("Model Evaluation on All Data")
 ```
 
